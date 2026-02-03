@@ -88,6 +88,7 @@ FORBIDDEN BEHAVIORS:
 ❌ Using interpretive language like "suggests," "indicates," "reflects strategic shift"
 ❌ Filling in gaps with likely or reasonable assumptions
 ❌ Listing routine product refreshes or annual model updates (iPhone 15→16, etc.)
+❌ Listing anything that isn't materially relevant. If an investor wouldn't be interested in it, don't include it. Nobody cares if the page numbers are different.
 
 ALLOWED BEHAVIORS:
 ✅ Reporting specific text that was removed and specific text that was added
