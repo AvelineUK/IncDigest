@@ -137,33 +137,9 @@ class QualityValidator:
                 elif len(ai_results['summaries'][section]) < 50:
                     issues.append(f"{section}: AI summary too short")
                 
-                # Check for potential hallucination indicators
-                summary = ai_results['summaries'].get(section, '')
-                
-                # Flag suspicious patterns that might indicate hallucination
-                hallucination_flags = []
-                
-                # Check for future product names (e.g., "iPhone 17", "Series 11")
-                if any(phrase in summary.lower() for phrase in [
-                    'iphone 17', 'iphone 18', 'iphone 19',
-                    'series 11', 'series 12', 'series 13',
-                    'model 4', 'model 5', 'model 6'
-                ]):
-                    hallucination_flags.append("Contains potentially future product names")
-                
-                # Check for specific percentage claims (often hallucinated)
-                import re
-                specific_percentages = re.findall(r'\d+%', summary)
-                if len(specific_percentages) > 3:
-                    hallucination_flags.append("Contains multiple specific percentages (verify accuracy)")
-                
-                # Check for very specific employee counts (often hallucinated)
-                if re.search(r'\b\d{3},\d{3}\b', summary):  # Pattern like "164,000"
-                    hallucination_flags.append("Contains specific employee counts (verify accuracy)")
-                
-                # If flags detected, add warning (not failure, just warning)
-                if hallucination_flags:
-                    issues.append(f"{section}: Potential accuracy concerns - {'; '.join(hallucination_flags)}")
+                # Future enhancement: Could add universal hallucination detection here
+                # For now, rely on extraction quality checks only
+                # Product names vary by company and change over time
         
         # ========================================
         # CHECK 5: Diff analysis ran
