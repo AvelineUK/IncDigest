@@ -55,7 +55,6 @@ class SupabaseClient:
             'sections_extracted': list(sections_extracted),
             'extraction_issues': extraction_issues if extraction_issues else [],
             'extraction_success': extraction_success,
-            'quality_approved': quality_approved,  # New field
             'ai_summaries': ai_summaries,
             'ai_cost_usd': float(ai_cost_usd),
             'total_tokens_consumed': int(total_tokens_consumed),
