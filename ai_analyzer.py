@@ -1,0 +1,313 @@
+"""
+AI Analysis Module
+Uses Claude API to generate summaries of changes in 10-K sections
+"""
+
+from typing import Dict, Optional
+import json
+
+# Try to import required packages
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+    print("Warning: anthropic package not installed. Install with: pip install anthropic")
+
+try:
+    from config import check_api_key
+    CONFIG_AVAILABLE = True
+except ImportError:
+    CONFIG_AVAILABLE = False
+    import os
+
+
+class AIAnalyzer:
+    """Generates AI-powered summaries of 10-K changes using Claude API"""
+    
+    def __init__(self, api_key: Optional[str] = None):
+        """
+        Initialize with Anthropic API key
+        If not provided, will load from .env file via config module
+        """
+        if api_key:
+            self.api_key = api_key
+        elif CONFIG_AVAILABLE:
+            self.api_key = check_api_key()
+        else:
+            # Fallback to environment variable
+            self.api_key = os.environ.get('ANTHROPIC_API_KEY')
+            if not self.api_key:
+                raise ValueError(
+                    "Anthropic API key required.\n"
+                    "Please create a .env file with: ANTHROPIC_API_KEY=sk-ant-your-key\n"
+                    "Or set environment variable: export ANTHROPIC_API_KEY='your-key'"
+                )
+        
+        self.model = "claude-sonnet-4-20250514"
+        self.max_tokens = 2000  # Per section summary
+    
+    def create_prompt(self, 
+                     section_name: str,
+                     company_name: str,
+                     ticker: str,
+                     old_date: str,
+                     new_date: str,
+                     removed_content: str,
+                     added_content: str) -> str:
+        """
+        Create the prompt for Claude to analyze section changes
+        
+        CRITICAL: This prompt is designed to prevent hallucination by requiring
+        explicit evidence for every claim. Financial accuracy is paramount.
+        """
+        prompt = f"""You are analyzing changes in SEC 10-K filings for investors. Your accuracy is critical.
+
+CONTEXT:
+Company: {company_name} ({ticker})
+Old Filing: 10-K filed {old_date}
+New Filing: 10-K filed {new_date}
+Section: {section_name}
+
+STRICT EVIDENCE RULES (MANDATORY):
+1. ONLY report changes explicitly shown in the REMOVED vs ADDED content below
+2. DO NOT infer, interpret, or extrapolate beyond what is directly stated
+3. DO NOT mention product names, model numbers, or versions unless they appear in BOTH removed and added content showing a clear change
+4. DO NOT report percentage changes, employee counts, or financial figures unless explicitly comparing old vs new values shown in the diff
+5. DO NOT describe background context or restate existing information
+6. If you cannot identify a specific, evidenced change, respond ONLY with: "No material disclosure changes identified in this section."
+
+EXTREMELY IMPORTANT - NO EXTERNAL KNOWLEDGE:
+Under no circumstances use information or data outside of these documents. You cannot use any prior knowledge about this company, its products, its industry, or any other contextual information. For the purposes of this analysis, treat yourself as having ZERO prior knowledge. If it's not in the REMOVED or ADDED content below, it does not exist. IF YOU BREAK THIS RULE, IT CAN CAUSE SERIOUS LEGAL ISSUES. NEVER, EVER BREAK THIS RULE.
+
+FORBIDDEN BEHAVIORS:
+❌ Listing product lineups unless explicitly comparing old list → new list
+❌ Describing "refreshed" or "updated" products without direct evidence of change
+❌ Reporting numerical changes without seeing both the old and new numbers
+❌ Mentioning personnel changes unless explicitly stated in added content
+❌ Using interpretive language like "suggests," "indicates," "reflects strategic shift"
+❌ Filling in gaps with likely or reasonable assumptions
+
+ALLOWED BEHAVIORS:
+✅ Reporting specific text that was removed and specific text that was added
+✅ Noting new risk disclosures that appear in added content
+✅ Identifying deleted or modified language in compliance sections
+✅ Quoting specific new statements, warnings, or commitments
+✅ Stating "No material disclosure changes" when changes are minor or unclear
+
+OUTPUT FORMAT:
+- If material changes exist: 2-4 bullet points of ONLY the specific changes evidenced in the diff
+- If no clear material changes: "No material disclosure changes identified in this section."
+- Keep summaries under 200 words
+- Be precise, not comprehensive
+
+REMOVED CONTENT (from old filing):
+{removed_content if removed_content else "[No content removed]"}
+
+ADDED CONTENT (to new filing):
+{added_content if added_content else "[No content added]"}
+
+Analysis (evidence-based only):"""
+
+        return prompt
+    
+    def analyze_section_changes(self,
+                               section_name: str,
+                               company_name: str,
+                               ticker: str,
+                               old_date: str,
+                               new_date: str,
+                               diff_result: Dict) -> Dict:
+        """
+        Analyze changes in a single section using Claude API
+        
+        Returns:
+            Dict with analysis results including summary and metadata
+        """
+        if not diff_result.get('has_meaningful_changes', False):
+            return {
+                'section': section_name,
+                'has_changes': False,
+                'summary': 'No material changes in this section.',
+                'status': 'unchanged'
+            }
+        
+        removed = diff_result.get('removed_content', '')
+        added = diff_result.get('added_content', '')
+        
+        # Truncate if content is too long (to stay within token limits)
+        max_content_length = 15000  # chars per section
+        if len(removed) > max_content_length:
+            removed = removed[:max_content_length] + "\n\n[Content truncated due to length...]"
+        if len(added) > max_content_length:
+            added = added[:max_content_length] + "\n\n[Content truncated due to length...]"
+        
+        prompt = self.create_prompt(
+            section_name=section_name,
+            company_name=company_name,
+            ticker=ticker,
+            old_date=old_date,
+            new_date=new_date,
+            removed_content=removed,
+            added_content=added
+        )
+        
+        # Call Claude API
+        try:
+            if not ANTHROPIC_AVAILABLE:
+                return {
+                    'section': section_name,
+                    'has_changes': True,
+                    'summary': '[MOCK] Anthropic package not installed. Install with: pip install anthropic\n\nThis section would contain AI-generated analysis of changes.',
+                    'status': 'mock',
+                    'tokens': {'input': 10000, 'output': 500, 'total': 10500},
+                    'cost_usd': 0.0375  # Estimated cost
+                }
+            
+            client = anthropic.Anthropic(api_key=self.api_key)
+            
+            message = client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            summary = message.content[0].text
+            
+            # Get token usage for cost tracking
+            input_tokens = message.usage.input_tokens
+            output_tokens = message.usage.output_tokens
+            
+            # Calculate cost (Claude 3.5 Sonnet pricing)
+            input_cost = input_tokens * (3.00 / 1_000_000)  # $3 per million input tokens
+            output_cost = output_tokens * (15.00 / 1_000_000)  # $15 per million output tokens
+            total_cost = input_cost + output_cost
+            
+            return {
+                'section': section_name,
+                'has_changes': True,
+                'summary': summary.strip(),
+                'status': 'analyzed',
+                'tokens': {
+                    'input': input_tokens,
+                    'output': output_tokens,
+                    'total': input_tokens + output_tokens
+                },
+                'cost_usd': round(total_cost, 4)
+            }
+            
+        except Exception as e:
+            return {
+                'section': section_name,
+                'has_changes': True,
+                'summary': f'Error analyzing section: {str(e)}',
+                'status': 'error',
+                'error': str(e)
+            }
+    
+    def analyze_all_sections(self,
+                           company_name: str,
+                           ticker: str,
+                           old_date: str,
+                           new_date: str,
+                           diff_results: Dict[str, Dict]) -> Dict:
+        """
+        Analyze all sections and generate complete report
+        
+        Args:
+            company_name: Company name
+            ticker: Stock ticker
+            old_date: Date of older filing
+            new_date: Date of newer filing
+            diff_results: Dict mapping section names to diff analysis results
+        
+        Returns:
+            Complete analysis report with all sections
+        """
+        print(f"\n{'='*60}")
+        print(f"AI Analysis: {company_name} ({ticker})")
+        print(f"Comparing {old_date} vs {new_date}")
+        print(f"{'='*60}\n")
+        
+        analyses = []
+        total_cost = 0.0
+        total_tokens = 0
+        
+        for section_name, diff_result in diff_results.items():
+            print(f"Analyzing {section_name}...", end=' ')
+            
+            analysis = self.analyze_section_changes(
+                section_name=section_name,
+                company_name=company_name,
+                ticker=ticker,
+                old_date=str(old_date),
+                new_date=str(new_date),
+                diff_result=diff_result
+            )
+            
+            analyses.append(analysis)
+            
+            if analysis.get('cost_usd'):
+                total_cost += analysis['cost_usd']
+                total_tokens += analysis['tokens']['total']
+                print(f"✓ (${analysis['cost_usd']:.4f}, {analysis['tokens']['total']} tokens)")
+            else:
+                print(f"✓ ({analysis['status']})")
+        
+        print(f"\nTotal cost: ${total_cost:.4f} (£{total_cost * 0.79:.4f})")
+        print(f"Total tokens: {total_tokens:,}")
+        
+        return {
+            'company_name': company_name,
+            'ticker': ticker,
+            'old_filing_date': str(old_date),
+            'new_filing_date': str(new_date),
+            'sections': analyses,
+            'total_cost_usd': round(total_cost, 4),
+            'total_cost_gbp': round(total_cost * 0.79, 4),  # Rough USD to GBP conversion
+            'total_tokens': total_tokens,
+            'generated_at': None  # Will be set when generating actual report
+        }
+    
+    def format_report_text(self, analysis_result: Dict) -> str:
+        """
+        Format the analysis result as readable text (for console output or text file)
+        """
+        report = f"""
+{'='*80}
+SEC 10-K CHANGE ANALYSIS
+{'='*80}
+
+Company: {analysis_result['company_name']} ({analysis_result['ticker']})
+Old Filing: {analysis_result['old_filing_date']}
+New Filing: {analysis_result['new_filing_date']}
+
+{'='*80}
+
+"""
+        
+        for section_analysis in analysis_result['sections']:
+            report += f"\n{section_analysis['section']}\n"
+            report += f"{'-'*80}\n\n"
+            report += f"{section_analysis['summary']}\n\n"
+        
+        report += f"""
+{'='*80}
+REPORT METADATA
+{'='*80}
+
+Total Analysis Cost: ${analysis_result['total_cost_usd']} (£{analysis_result['total_cost_gbp']})
+Total Tokens: {analysis_result['total_tokens']:,}
+
+Generated: {analysis_result.get('generated_at', 'N/A')}
+"""
+        
+        return report
+
+
+if __name__ == "__main__":
+    # This will be tested as part of the full pipeline
+    print("AI Analyzer module loaded")
+    print("To test, run the full validation pipeline with: python validation_pipeline.py")
