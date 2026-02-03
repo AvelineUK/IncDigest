@@ -69,6 +69,25 @@ Old Filing: 10-K filed {old_date}
 New Filing: 10-K filed {new_date}
 Section: {section_name}
 
+⚠️ CRITICAL LEGAL REQUIREMENT - READ FIRST ⚠️
+Under no circumstances use information or data outside of these documents. You cannot use any prior knowledge about this company, its products, its industry, or any other contextual information. For the purposes of this analysis, treat yourself as having ZERO prior knowledge. If it's not in the REMOVED or ADDED content below, it does not exist.
+
+IF YOU BREAK THIS RULE, IT CAN CAUSE SERIOUS LEGAL ISSUES. NEVER, EVER BREAK THIS RULE.
+
+MATERIALITY STANDARD:
+Focus ONLY on changes that would affect investment decisions:
+✅ New risks or risk escalation
+✅ Business model changes or strategic shifts
+✅ Market exits/entries or geographic expansion
+✅ Significant financial metric changes
+✅ Regulatory, legal, or compliance developments
+✅ Executive leadership changes (C-suite, board)
+✅ Material operational changes (facility closures, restructuring)
+
+❌ Routine operational updates
+❌ Minor wording tweaks or clarifications
+❌ Formatting, pagination, or organizational changes
+
 STRICT EVIDENCE RULES (MANDATORY):
 1. ONLY report changes explicitly shown in the REMOVED vs ADDED content below
 2. DO NOT infer, interpret, or extrapolate beyond what is directly stated
@@ -77,32 +96,43 @@ STRICT EVIDENCE RULES (MANDATORY):
 5. DO NOT describe background context or restate existing information
 6. If you cannot identify a specific, evidenced change, respond ONLY with: "No material disclosure changes identified in this section."
 
-EXTREMELY IMPORTANT - NO EXTERNAL KNOWLEDGE:
-Under no circumstances use information or data outside of these documents. You cannot use any prior knowledge about this company, its products, its industry, or any other contextual information. For the purposes of this analysis, treat yourself as having ZERO prior knowledge. If it's not in the REMOVED or ADDED content below, it does not exist. IF YOU BREAK THIS RULE, IT CAN CAUSE SERIOUS LEGAL ISSUES. NEVER, EVER BREAK THIS RULE.
-
 FORBIDDEN BEHAVIORS:
-❌ Listing product lineups unless explicitly comparing old list → new list
-❌ Describing "refreshed" or "updated" products without direct evidence of change
-❌ Reporting numerical changes without seeing both the old and new numbers
-❌ Mentioning personnel changes unless explicitly stated in added content
-❌ Using interpretive language like "suggests," "indicates," "reflects strategic shift"
-❌ Filling in gaps with likely or reasonable assumptions
-❌ Listing routine product refreshes or annual model updates (iPhone 15→16, etc.)
-❌ Listing anything that isn't materially relevant. If an investor wouldn't be interested in it, don't include it. Nobody cares if the page numbers are different.
+❌ Routine updates: product versions, page numbers, fiscal year dates, formatting changes, document reorganization
+❌ Annual refresh cycles: iPhone 15→16, Model Year updates, standard version increments
+❌ Interpretive language: "suggests," "indicates," "appears to show," "reflects strategic shift"
+❌ Unsupported claims: mentioning percentages, counts, or facts not explicitly shown in BOTH old AND new content
+❌ Personnel changes: unless C-suite or board level
+❌ Minor wording changes: unless they materially alter meaning or obligations
+❌ Background context: restating what the company does or existing business lines
 
 ALLOWED BEHAVIORS:
 ✅ Reporting specific text that was removed and specific text that was added
-✅ Noting new risk disclosures that appear in added content
-✅ Identifying deleted or modified language in compliance sections
-✅ Quoting specific new statements, warnings, or commitments
-✅ Stating "No material disclosure changes" when changes are minor or unclear
-✅ New product CATEGORIES or business lines (e.g., entering new markets, launching new services)
+✅ Noting NEW risk disclosures or risk escalation language
+✅ Identifying deleted or modified language in compliance, legal, or regulatory sections
+✅ Quoting specific new commitments, obligations, or forward-looking statements
+✅ Reporting changes to financial metrics, performance indicators, or business segment definitions
+✅ New product CATEGORIES or business lines (e.g., "entered cloud services market," not "launched Server 2024")
+✅ Geographic expansion (new countries/regions) or market exits
+✅ Stating "No material disclosure changes identified in this section" when appropriate
+
+THE BLOOMBERG TEST (apply to every bullet point):
+"Would a Bloomberg terminal analyst include this in a filing summary?"
+If NO → Do not include it.
+
+Examples:
+✅ GOOD: "New risk disclosure added: 'Trade restrictions may significantly increase component costs'"
+✅ GOOD: "Distribution channel mix shifted from 60% direct/40% indirect to 65% direct/35% indirect"
+❌ BAD: "Page references updated throughout document"
+❌ BAD: "iPhone 16 replaced iPhone 15 in product lineup"
+❌ BAD: "Fiscal year dates updated from 2024 to 2025"
 
 OUTPUT FORMAT:
-- If material changes exist: 2-4 bullet points of ONLY the specific changes evidenced in the diff
-- If no clear material changes: "No material disclosure changes identified in this section."
-- Keep summaries under 200 words
-- Be precise, not comprehensive
+- Maximum 4 bullet points (be highly selective - quality over quantity)
+- Each bullet must pass the Bloomberg test
+- Lead with the most material change first
+- If fewer than 2 material changes exist, respond: "No material disclosure changes identified in this section."
+- Keep total response under 200 words
+- Be precise and specific, not comprehensive
 
 REMOVED CONTENT (from old filing):
 {removed_content if removed_content else "[No content removed]"}
