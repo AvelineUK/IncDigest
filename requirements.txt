@@ -4,6 +4,12 @@ lxml
 anthropic==0.40.0
 python-dotenv==1.0.0
 flask==3.0.0
+gunicorn==21.2.0
+# Supabase with compatible versions
 supabase==2.3.4
 httpx==0.25.2
-gunicorn==21.2.0
+gotrue==2.4.2
+postgrest==0.15.1
+realtime==1.0.6
+storage3==0.7.7
+supafunc==0.3.3
