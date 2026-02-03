@@ -167,7 +167,7 @@ class SupabaseClient:
         
         return result.data[0]['id']
     
-    def update_company_status(self, ticker, extraction_status):
+    def update_company_status(self, ticker, extraction_status, company_name=None):
         """
         Update company's extraction status
         Used to track which companies work/fail
@@ -179,18 +179,20 @@ class SupabaseClient:
         
         if result.data:
             # Update existing
-            self.client.table('companies').update({
+            update_data = {
                 'extraction_status': extraction_status,
                 'last_successful_extraction': 'now()' if extraction_status == 'working' else None,
-                'failure_count': 0 if extraction_status == 'working' else None  # Reset failure count on success
-            }).eq('ticker', ticker).execute()
+                'failure_count': 0 if extraction_status == 'working' else None
+            }
+            if company_name:
+                update_data['company_name'] = company_name
+            
+            self.client.table('companies').update(update_data).eq('ticker', ticker).execute()
         else:
             # Create new company entry
-            # We don't have company_name or CIK here, but that's okay
-            # These can be filled in later by background jobs
             self.client.table('companies').insert({
                 'ticker': ticker,
-                'company_name': None,  # Will be filled by background job
+                'company_name': company_name or ticker,  # Use ticker as fallback
                 'cik': None,  # Will be filled by background job
                 'extraction_status': extraction_status,
                 'last_successful_extraction': 'now()' if extraction_status == 'working' else None,

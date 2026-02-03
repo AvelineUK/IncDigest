@@ -312,7 +312,9 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         
         # Update company status to 'working' since extraction succeeded
         try:
-            db.update_company_status(ticker, 'working')
+            # Get company name from the report we just created
+            company_name = filings[0].get('company_name', ticker)
+            db.update_company_status(ticker, 'working', company_name)
             print(f"[{job_id}] ✓ Company status updated: {ticker} -> working")
         except Exception as status_error:
             print(f"[{job_id}] ⚠ Could not update company status: {status_error}")
@@ -415,7 +417,7 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         
         # Mark company as broken since extraction failed
         try:
-            db.update_company_status(ticker, 'broken')
+            db.update_company_status(ticker, 'broken', ticker)  # Use ticker as fallback name
             print(f"[{job_id}] ✓ Company status updated: {ticker} -> broken")
         except Exception as status_error:
             print(f"[{job_id}] ⚠ Could not update company status: {status_error}")
