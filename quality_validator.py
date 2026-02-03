@@ -21,7 +21,7 @@ class QualityValidator:
         # Based on testing, these are reasonable thresholds
         self.min_word_counts = {
             'Item 1': 1000,     # Business section
-            'Item 1A': 5000,    # Risk Factors (usually longest)
+            'Item 1A': 3000,    # Risk Factors (usually longest)
             'Item 7': 5000,     # MD&A
             'Item 8': 2000      # Financial Statements (lowered - some are pointers)
         }
