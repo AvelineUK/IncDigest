@@ -392,6 +392,27 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         jobs[job_id]['status'] = 'failed'
         jobs[job_id]['error'] = str(e)
         
+        # Refund the token since job failed
+        try:
+            result = db.client.table('profiles').select('tokens_remaining').eq('id', user_id).execute()
+            if result.data:
+                current_tokens = result.data[0]['tokens_remaining']
+                db.client.table('profiles').update({
+                    'tokens_remaining': current_tokens + 1
+                }).eq('id', user_id).execute()
+                
+                # Create refund transaction
+                db.client.table('token_transactions').insert({
+                    'user_id': user_id,
+                    'transaction_type': 'refund',
+                    'tokens_amount': 1,
+                    'description': f'Job failed for {ticker}: {str(e)[:100]}'
+                }).execute()
+                
+                print(f"[{job_id}] ✓ Token refunded due to job failure (balance: {current_tokens + 1})")
+        except Exception as refund_error:
+            print(f"[{job_id}] ⚠ Could not refund token: {refund_error}")
+        
         # Mark company as broken since extraction failed
         try:
             db.update_company_status(ticker, 'broken')
