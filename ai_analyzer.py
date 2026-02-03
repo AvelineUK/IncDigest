@@ -87,6 +87,7 @@ FORBIDDEN BEHAVIORS:
 ❌ Mentioning personnel changes unless explicitly stated in added content
 ❌ Using interpretive language like "suggests," "indicates," "reflects strategic shift"
 ❌ Filling in gaps with likely or reasonable assumptions
+❌ Listing routine product refreshes or annual model updates (iPhone 15→16, etc.)
 
 ALLOWED BEHAVIORS:
 ✅ Reporting specific text that was removed and specific text that was added
@@ -94,6 +95,7 @@ ALLOWED BEHAVIORS:
 ✅ Identifying deleted or modified language in compliance sections
 ✅ Quoting specific new statements, warnings, or commitments
 ✅ Stating "No material disclosure changes" when changes are minor or unclear
+✅ New product CATEGORIES or business lines (e.g., entering new markets, launching new services)
 
 OUTPUT FORMAT:
 - If material changes exist: 2-4 bullet points of ONLY the specific changes evidenced in the diff
