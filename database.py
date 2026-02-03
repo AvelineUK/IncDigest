@@ -182,7 +182,7 @@ class SupabaseClient:
             self.client.table('companies').update({
                 'extraction_status': extraction_status,
                 'last_successful_extraction': 'now()' if extraction_status == 'working' else None,
-                'failure_count': 0 if extraction_status == 'working' else None  # Resetfailure count on success
+                'failure_count': 0 if extraction_status == 'working' else None  # Reset failure count on success
             }).eq('ticker', ticker).execute()
         else:
             # Create new company entry
