@@ -5,4 +5,5 @@ anthropic==0.40.0
 python-dotenv==1.0.0
 flask==3.0.0
 supabase==2.3.4
+httpx==0.25.2
 gunicorn==21.2.0
