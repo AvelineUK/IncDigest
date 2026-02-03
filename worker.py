@@ -120,7 +120,8 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
                 except Exception as callback_error:
                     print(f"[{job_id}] ⚠ Callback failed: {callback_error}")
                 
-                print(f"[{job_id}] ✓ Job completed (existing report, 1 token charged)")
+                charge_msg = "no charge - quality issues" if is_refunded else "1 token charged"
+                print(f"[{job_id}] ✓ Job completed (existing report, {charge_msg})")
                 print(f"{'='*60}\n")
                 return
             
