@@ -30,7 +30,7 @@ class SupabaseClient:
     def create_report(self, user_id, ticker, company_name, newer_filing_date,
                       older_filing_date, newer_accession, older_accession,
                       sections_extracted, extraction_issues, extraction_success,
-                      quality_approved, ai_summaries, ai_cost_usd, total_tokens_consumed,
+                      ai_summaries, ai_cost_usd, total_tokens_consumed,
                       generation_time_seconds):
         """
         Insert report into database
