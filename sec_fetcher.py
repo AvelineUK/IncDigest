@@ -22,7 +22,7 @@ class SECFetcher:
     """Handles fetching and parsing of SEC 10-K filings"""
     
     BASE_URL = "https://www.sec.gov"
-    RATE_LIMIT_DELAY = 0.2  #SEC allows 10 requests/second, using 5/second to be safe
+    RATE_LIMIT_DELAY = 0.2  # SEC allows 10 requests/second, using 5/second to be safe
     
     # Required headers for SEC EDGAR API  
     # SEC requires proper User-Agent with contact information
