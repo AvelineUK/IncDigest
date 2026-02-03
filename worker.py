@@ -365,6 +365,9 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         # ========================================
         print(f"[{job_id}] Step 7: Notifying completion")
         try:
+            # Get service key for authenticated callback
+            service_key = db.client.supabase_key  # Already has service role key
+            
             response = requests.post(
                 callback_url,
                 json={
@@ -372,6 +375,10 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
                     'status': 'completed',
                     'report_id': report_id,
                     'refunded': not quality_result['is_valid']
+                },
+                headers={
+                    'Authorization': f'Bearer {service_key}',
+                    'Content-Type': 'application/json'
                 },
                 timeout=10
             )
@@ -437,12 +444,17 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         
         # Callback with failure
         try:
+            service_key = db.client.supabase_key
             requests.post(
                 callback_url,
                 json={
                     'job_id': job_id,
                     'status': 'failed',
                     'error': str(e)
+                },
+                headers={
+                    'Authorization': f'Bearer {service_key}',
+                    'Content-Type': 'application/json'
                 },
                 timeout=10
             )
