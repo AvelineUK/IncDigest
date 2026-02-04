@@ -109,17 +109,20 @@ class SECFetcher:
             primary_documents = recent.get('primaryDocument', [])
             company_name = data.get('name', 'Unknown')
             
-            # Check if this is a foreign company
-            for form in forms[:10]:  # Check first 10 filings
+            # Check if this is a foreign company (check ALL recent forms)
+            foreign_forms = []
+            for form in forms[:20]:  # Check first 20 filings
                 if form in ['20-F', '40-F', '6-K']:
-                    raise ValueError(
-                        f"Foreign company detected ({form} filing). "
-                        f"This service currently only supports U.S. companies filing 10-K reports."
-                    )
+                    foreign_forms.append(form)
+            
+            if foreign_forms:
+                raise ValueError(
+                    f"Foreign company detected ({', '.join(set(foreign_forms))} filings found). "
+                    f"This service currently only supports U.S. companies filing 10-K reports."
+                )
             
             for i in range(len(forms)):
-                # Include both 10-K and 10-K/A (amendments)
-                if forms[i] == '10-K' or forms[i] == '10-K/A':
+                if forms[i] == '10-K':
                     accession = accession_numbers[i]
                     accession_no_hyphens = accession.replace('-', '')
                     

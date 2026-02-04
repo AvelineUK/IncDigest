@@ -14,6 +14,92 @@ class DiffAnalyzer:
     def __init__(self):
         self.min_change_length = 50  # Ignore changes shorter than this (minor wording)
     
+    def _chunked_diff_analysis(self, old_text: str, new_text: str, chunk_size: int = 20000) -> Dict:
+        """
+        Analyze large sections by breaking them into chunks
+        This avoids performance issues with difflib on huge texts
+        
+        Strategy:
+        1. Split both texts into chunks of ~20K chars
+        2. Diff each corresponding chunk pair
+        3. Aggregate meaningful changes
+        4. Return combined results
+        """
+        # Split into paragraphs first (better boundary than arbitrary chars)
+        old_paragraphs = old_text.split('\n\n')
+        new_paragraphs = new_text.split('\n\n')
+        
+        # Group paragraphs into chunks
+        def create_chunks(paragraphs, target_size):
+            chunks = []
+            current_chunk = []
+            current_size = 0
+            
+            for para in paragraphs:
+                para_size = len(para)
+                if current_size + para_size > target_size and current_chunk:
+                    chunks.append('\n\n'.join(current_chunk))
+                    current_chunk = [para]
+                    current_size = para_size
+                else:
+                    current_chunk.append(para)
+                    current_size += para_size
+            
+            if current_chunk:
+                chunks.append('\n\n'.join(current_chunk))
+            
+            return chunks
+        
+        old_chunks = create_chunks(old_paragraphs, chunk_size)
+        new_chunks = create_chunks(new_paragraphs, chunk_size)
+        
+        print(f"    Split into {len(old_chunks)} old chunks and {len(new_chunks)} new chunks")
+        
+        # Compare chunks
+        all_added = []
+        all_removed = []
+        
+        # Use difflib on chunk level first to align them
+        chunk_matcher = difflib.SequenceMatcher(None, old_chunks, new_chunks)
+        
+        for tag, i1, i2, j1, j2 in chunk_matcher.get_opcodes():
+            if tag == 'equal':
+                continue  # No changes in these chunks
+            elif tag == 'delete':
+                # Chunks removed
+                for idx in range(i1, i2):
+                    all_removed.append(old_chunks[idx])
+            elif tag == 'insert':
+                # Chunks added
+                for idx in range(j1, j2):
+                    all_added.append(new_chunks[idx])
+            elif tag == 'replace':
+                # Chunks modified - do detailed diff
+                for old_idx, new_idx in zip(range(i1, i2), range(j1, j2)):
+                    chunk_diff = self.compute_diff(old_chunks[old_idx], new_chunks[new_idx])
+                    if chunk_diff['has_changes']:
+                        all_removed.append(chunk_diff['deletions'])
+                        all_added.append(chunk_diff['additions'])
+        
+        # Combine results
+        removed_content = '\n\n'.join(filter(None, all_removed))
+        added_content = '\n\n'.join(filter(None, all_added))
+        
+        has_changes = bool(removed_content or added_content)
+        
+        # Limit output size for AI (max 10K chars each)
+        if len(removed_content) > 10000:
+            removed_content = removed_content[:10000] + "\n\n[... additional changes truncated ...]"
+        if len(added_content) > 10000:
+            added_content = added_content[:10000] + "\n\n[... additional changes truncated ...]"
+        
+        return {
+            'added_content': added_content,
+            'removed_content': removed_content,
+            'has_meaningful_changes': has_changes,
+            'summary': f'Analyzed large section in chunks: found {len(all_added)} additions and {len(all_removed)} removals'
+        }
+    
     def clean_text(self, text: str) -> str:
         """
         Clean text for comparison
@@ -114,26 +200,19 @@ class DiffAnalyzer:
     def extract_meaningful_changes(self, old_text: str, new_text: str) -> Dict:
         """
         Extract only meaningful changes, filtering out minor wording changes
-        Optimized for large sections (like Item 8 Financial Statements)
+        Uses chunked analysis for large sections to avoid performance issues
         
         Returns:
         - added_content: Text that was added
         - removed_content: Text that was removed
         - modified_sections: Sections that were substantially modified
         """
-        # For very large sections (>100K chars), use simpler comparison
+        # For very large sections (>100K chars), use chunked comparison
         if len(old_text) > 100000 or len(new_text) > 100000:
-            print(f"    Large section detected ({len(old_text):,} / {len(new_text):,} chars), using fast comparison...")
-            
-            # Simple approach: just note that it changed
-            # For financial statements, detailed diff isn't as useful anyway
-            return {
-                'added_content': new_text[:5000],  # First 5K chars as sample
-                'removed_content': old_text[:5000],
-                'has_meaningful_changes': True,
-                'summary': f'Large section: ~{len(new_text):,} chars in new version vs ~{len(old_text):,} chars in old version'
-            }
+            print(f"    Large section detected ({len(old_text):,} / {len(new_text):,} chars), using chunked comparison...")
+            return self._chunked_diff_analysis(old_text, new_text)
         
+        # For normal-sized sections, use standard diff
         diff = self.compute_diff(old_text, new_text)
         
         if not diff['has_changes']:

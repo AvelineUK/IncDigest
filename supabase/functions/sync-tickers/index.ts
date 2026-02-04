@@ -11,9 +11,12 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 })
   }
 
   try {
