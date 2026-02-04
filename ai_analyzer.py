@@ -130,7 +130,7 @@ OUTPUT FORMAT:
 - Maximum 4 bullet points (be highly selective - quality over quantity)
 - Each bullet must pass the Bloomberg test
 - Lead with the most material change first
-- If fewer than 2 material changes exist, respond: "No material disclosure changes identified in this section."
+- If fewer than 1 material changes exist, respond: "No material disclosure changes identified in this section."
 - Keep total response under 200 words
 - Be precise and specific, not comprehensive
 
