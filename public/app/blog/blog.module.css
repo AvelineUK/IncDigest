@@ -1,0 +1,140 @@
+.page {
+  min-height: 100vh;
+}
+
+/* Navigation */
+.nav {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-md) 0;
+}
+
+.navContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.navLinks {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: center;
+}
+
+/* Header */
+.header {
+  padding: var(--spacing-2xl) 0 var(--spacing-xl) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-xl);
+}
+
+.header h1 {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Posts */
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  padding-bottom: var(--spacing-2xl);
+}
+
+.post {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-xl);
+}
+
+.post:last-child {
+  border-bottom: none;
+}
+
+.postMeta {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+}
+
+.post h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.post h2 a {
+  color: var(--color-text);
+}
+
+.post h2 a:hover {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.post p {
+  margin-bottom: var(--spacing-md);
+}
+
+.readMore {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.readMore:hover {
+  text-decoration: none;
+  color: var(--color-text-secondary);
+}
+
+/* Article Content */
+.content {
+  padding-bottom: var(--spacing-2xl);
+  line-height: 1.7;
+}
+
+.content h2 {
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.content h3 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.content ul, .content ol {
+  margin-left: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.content li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.content hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--spacing-xl) 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navLinks {
+    gap: var(--spacing-md);
+  }
+  
+  .post h2 {
+    font-size: 1.25rem;
+  }
+}
