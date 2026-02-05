@@ -152,6 +152,19 @@ Item 8 (Financials): accounting policies, audit matters, presentation changes
 
 Only report changes that are relevant to the disclosure purpose of this section.
 
+⚠️ SECTION-SPECIFIC MATERIALITY ADJUSTMENTS:
+
+For Item 7 (MD&A) and Item 8 (Financials):
+- Annual financial performance changes ARE material (revenue trends, margin changes, liquidity)
+- Significant numerical changes in financial metrics should be reported
+- Management's discussion of year-over-year results is material
+- Changes in accounting treatment, audit matters, or financial presentation are material
+- DO NOT dismiss these as "routine annual updates" - the numbers changing IS the disclosure
+
+For Item 1 (Business) and Item 1A (Risk Factors):
+- Apply strict materiality - focus on NEW disclosures, not routine refreshes
+- Operational updates are only material if they represent strategic shifts
+
 FAILSAFE RULE (MANDATORY)
 
 If the REMOVED vs ADDED content contains any explicit change that clearly fits a MATERIAL CHANGE CATEGORY above, you MUST report it.
