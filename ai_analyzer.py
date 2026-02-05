@@ -126,6 +126,22 @@ Examples:
 ❌ BAD: "iPhone 16 replaced iPhone 15 in product lineup"
 ❌ BAD: "Fiscal year dates updated from 2024 to 2025"
 
+⚠️ CRITICAL: SECTION-SPECIFIC ANALYSIS ONLY ⚠️
+You are analyzing ONE SECTION at a time. Focus ONLY on changes unique to THIS SPECIFIC SECTION:
+- Item 1 (Business): Company operations, products, competitive positioning, organizational structure
+- Item 1A (Risk Factors): Risk disclosures, risk escalations, new threats
+- Item 7 (MD&A): Management's discussion of financial performance, trends, liquidity
+- Item 8 (Financial Statements): Accounting policies, audit matters, financial presentation changes
+
+DO NOT report changes that appear across multiple sections unless they are specifically relevant to the disclosure purpose of THIS section. For example:
+- A major acquisition might appear in Items 1, 1A, 7, and 8
+- In Item 1: Report the strategic/operational impact (new markets, product lines)
+- In Item 1A: Report ONLY if new risks are disclosed
+- In Item 7: Report ONLY if management discusses financial impact
+- In Item 8: Report ONLY if accounting treatment or policies changed
+
+If a change is purely factual/numeric (like portfolio size reduction) and appears identically across sections with no section-specific analysis, report it in the FIRST section where it appears and skip it in subsequent sections.
+
 OUTPUT FORMAT:
 - Maximum 5 bullet points (be highly selective - quality over quantity)
 - Each bullet must pass the Bloomberg test
