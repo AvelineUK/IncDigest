@@ -126,18 +126,21 @@ Examples:
 ❌ BAD: "iPhone 16 replaced iPhone 15 in product lineup"
 ❌ BAD: "Fiscal year dates updated from 2024 to 2025"
 
-⚠️ CRITICAL: ANALYZE THIS SECTION'S CONTENT ONLY ⚠️
-You are analyzing ONE SECTION at a time. Report ONLY what is explicitly shown in THIS section's REMOVED vs ADDED content.
-
-Each section serves a different disclosure purpose:
+⚠️ CRITICAL: SECTION-SPECIFIC ANALYSIS ONLY ⚠️
+You are analyzing ONE SECTION at a time. Focus ONLY on changes unique to THIS SPECIFIC SECTION:
 - Item 1 (Business): Company operations, products, competitive positioning, organizational structure
 - Item 1A (Risk Factors): Risk disclosures, risk escalations, new threats
 - Item 7 (MD&A): Management's discussion of financial performance, trends, liquidity
 - Item 8 (Financial Statements): Accounting policies, audit matters, financial presentation changes
 
-CRITICAL RULE: Only report what is EXPLICITLY in THIS section's REMOVED vs ADDED content. Do NOT assume or infer that this section discusses something just because it might logically belong here. If the diff shows no material changes beyond routine updates, respond: "No material disclosure changes identified in this section."
+DO NOT report changes that appear across multiple sections unless they are specifically relevant to the disclosure purpose of THIS section. For example:
+- A major acquisition might appear in Items 1, 1A, 7, and 8
+- In Item 1: Report the strategic/operational impact (new markets, product lines)
+- In Item 1A: Report ONLY if new risks are disclosed
+- In Item 7: Report ONLY if management discusses financial impact
+- In Item 8: Report ONLY if accounting treatment or policies changed
 
-The same factual event MAY appear in multiple sections if each section's diff discusses it differently. That's okay - report what's actually in each section's diff.
+If a change is purely factual/numeric (like portfolio size reduction) and appears identically across sections with no section-specific analysis, report it in the FIRST section where it appears and skip it in subsequent sections.
 
 OUTPUT FORMAT:
 - Maximum 5 bullet points (be highly selective - quality over quantity)
