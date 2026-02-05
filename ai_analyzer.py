@@ -209,6 +209,26 @@ Analysis (evidence-based only):"""
             
             summary = message.content[0].text
             
+            # Strip common preambles that Claude adds
+            preambles_to_remove = [
+                "Looking at the specific changes between the REMOVED and ADDED content, I identify these material disclosure changes:",
+                "Based on the explicit changes shown in the REMOVED vs ADDED content, here are the material disclosure changes:",
+                "Looking at the specific changes, I identify these material disclosure changes:",
+                "Based on the explicit changes shown, here are the material disclosure changes:",
+                "Here are the material disclosure changes:",
+                "The material disclosure changes are:",
+                "I identify the following material disclosure changes:",
+                "Analysis of the changes reveals:",
+                "The following material changes were identified:",
+            ]
+            
+            # Remove preambles (case-insensitive, strip whitespace)
+            summary_cleaned = summary.strip()
+            for preamble in preambles_to_remove:
+                if summary_cleaned.lower().startswith(preamble.lower()):
+                    summary_cleaned = summary_cleaned[len(preamble):].strip()
+                    break
+            
             # Get token usage for cost tracking
             input_tokens = message.usage.input_tokens
             output_tokens = message.usage.output_tokens
@@ -221,7 +241,7 @@ Analysis (evidence-based only):"""
             return {
                 'section': section_name,
                 'has_changes': True,
-                'summary': summary.strip(),
+                'summary': summary_cleaned.strip(),
                 'status': 'analyzed',
                 'tokens': {
                     'input': input_tokens,

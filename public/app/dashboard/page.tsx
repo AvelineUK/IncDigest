@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getCurrentUser, signOut, getTwoFactorStatus, setupTwoFactor, verifyTwoFactor, User } from '@/lib/auth'
+import { getCurrentUser, signOut, User } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
+import Footer from '@/components/Footer'
 import styles from './dashboard.module.css'
 
 interface Report {
@@ -20,15 +21,26 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
-  const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false)
-  const [qrCode, setQrCode] = useState('')
-  const [factorId, setFactorId] = useState('')
-  const [verifyCode, setVerifyCode] = useState('')
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     checkAuth()
   }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (openDropdown) {
+        const target = event.target as HTMLElement
+        if (!target.closest(`.${styles.dropdown}`)) {
+          setOpenDropdown(null)
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [openDropdown])
 
   async function checkAuth() {
     try {
@@ -40,20 +52,25 @@ export default function Dashboard() {
       
       setUser(currentUser)
       
-      // Check 2FA status
-      const factors = await getTwoFactorStatus()
-      const hasTotp = factors?.totp?.some((f: any) => f.status === 'verified')
-      setTwoFactorEnabled(!!hasTotp)
-      
       // Load reports
       const { data: reportsData } = await supabase
         .from('reports')
-        .select('*')
+        .select('id, ticker, extraction_success, refunded, created_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false })
         .limit(10)
       
-      if (reportsData) setReports(reportsData)
+      if (reportsData) {
+        // Map database fields to UI status
+        const mappedReports = reportsData.map(r => ({
+          id: r.id,
+          ticker: r.ticker,
+          status: r.refunded ? 'refunded' : (r.extraction_success ? 'completed' : 'failed'),
+          created_at: r.created_at,
+          completed_at: r.created_at
+        }))
+        setReports(mappedReports)
+      }
     } catch (error) {
       console.error('Auth check failed:', error)
       router.push('/login')
@@ -65,28 +82,6 @@ export default function Dashboard() {
   async function handleSignOut() {
     await signOut()
     router.push('/')
-  }
-
-  async function handleSetupTwoFactor() {
-    try {
-      const { id, totp } = await setupTwoFactor()
-      setFactorId(id)
-      setQrCode(totp.qr_code)
-      setShowTwoFactorSetup(true)
-    } catch (error: any) {
-      alert('Failed to setup 2FA: ' + error.message)
-    }
-  }
-
-  async function handleVerifyTwoFactor() {
-    try {
-      await verifyTwoFactor(factorId, verifyCode)
-      setTwoFactorEnabled(true)
-      setShowTwoFactorSetup(false)
-      alert('Two-factor authentication enabled successfully!')
-    } catch (error: any) {
-      alert('Invalid code. Please try again.')
-    }
   }
 
   if (loading) {
@@ -136,28 +131,6 @@ export default function Dashboard() {
         </div>
 
         <div className={styles.grid}>
-          {/* Security Section */}
-          <div className="card">
-            <h2>Security</h2>
-            {twoFactorEnabled ? (
-              <div className={styles.securityEnabled}>
-                <span className={styles.checkmark}>✓</span> Two-factor authentication enabled
-              </div>
-            ) : (
-              <>
-                <p className="text-secondary mb-2">
-                  Protect your account with two-factor authentication.
-                </p>
-                <button 
-                  onClick={handleSetupTwoFactor}
-                  className="button"
-                >
-                  Enable 2FA
-                </button>
-              </>
-            )}
-          </div>
-
           {/* Quick Actions */}
           <div className="card">
             <h2>Generate Report</h2>
@@ -179,20 +152,45 @@ export default function Dashboard() {
             <div className={styles.reportList}>
               {reports.map((report) => (
                 <div key={report.id} className={styles.reportItem}>
-                  <div>
-                    <strong>{report.ticker}</strong>
-                    <span className="text-secondary text-sm ml-1">
-                      {new Date(report.created_at).toLocaleDateString()}
+                  <div className={styles.reportInfo}>
+                    {report.status === 'completed' ? (
+                      <Link href={`/report/${report.id}`} className={styles.reportTicker}>
+                        {report.ticker}
+                      </Link>
+                    ) : (
+                      <span className={styles.reportTicker}>{report.ticker}</span>
+                    )}
+                    <span className={styles.reportDate}>
+                      {new Date(report.created_at).toLocaleDateString('en-US', { 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        year: 'numeric' 
+                      })}
                     </span>
                   </div>
-                  <div className={styles.reportStatus}>
+                  <div className={styles.reportActions}>
                     <span className={`${styles.statusBadge} ${styles[report.status]}`}>
                       {report.status}
                     </span>
                     {report.status === 'completed' && (
-                      <Link href={`/report/${report.id}`} className="button">
-                        View
-                      </Link>
+                      <div className={styles.dropdown}>
+                        <button 
+                          className={styles.dropdownButton}
+                          onClick={() => setOpenDropdown(openDropdown === report.id ? null : report.id)}
+                        >
+                          •••
+                        </button>
+                        {openDropdown === report.id && (
+                          <div className={styles.dropdownMenu}>
+                            <Link href={`/report/${report.id}`} className={styles.dropdownItem}>
+                              View Report
+                            </Link>
+                            <a href="#" className={styles.dropdownItem} onClick={(e) => { e.preventDefault(); alert('PDF export coming soon!'); }}>
+                              Download PDF
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -202,49 +200,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* 2FA Setup Modal */}
-      {showTwoFactorSetup && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>Setup Two-Factor Authentication</h2>
-            <p className="text-secondary mb-3">
-              Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
-            </p>
-            
-            <div className={styles.qrCode}>
-              <img src={qrCode} alt="2FA QR Code" />
-            </div>
-            
-            <div className="mt-3">
-              <label htmlFor="verifyCode">Enter 6-digit code</label>
-              <input
-                id="verifyCode"
-                type="text"
-                maxLength={6}
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="000000"
-              />
-            </div>
-            
-            <div className={styles.modalButtons}>
-              <button 
-                onClick={() => setShowTwoFactorSetup(false)}
-                className="button"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleVerifyTwoFactor}
-                className="button primary"
-                disabled={verifyCode.length !== 6}
-              >
-                Verify & Enable
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Footer />
     </div>
   )
 }

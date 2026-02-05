@@ -1,0 +1,240 @@
+.page {
+  min-height: 100vh;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  min-height: 100vh;
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-text);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.error {
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.error h1 {
+  margin-bottom: var(--spacing-md);
+}
+
+.error p {
+  margin-bottom: var(--spacing-xl);
+  color: var(--color-text-secondary);
+}
+
+/* Disclaimers */
+.disclaimerTop {
+  padding: var(--spacing-xl);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 2px solid var(--color-error);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-2xl) 0;
+}
+
+.disclaimerTop h3 {
+  color: var(--color-error);
+  margin-bottom: var(--spacing-md);
+}
+
+.disclaimerTop p {
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+.disclaimerTop ul {
+  margin-left: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.7;
+}
+
+.disclaimerTop li {
+  margin-bottom: var(--spacing-sm);
+}
+
+.disclaimerTop a {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.disclaimerBottom {
+  padding: var(--spacing-lg);
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-2xl) 0;
+}
+
+.disclaimerBottom h3 {
+  color: var(--color-warning);
+  margin-bottom: var(--spacing-sm);
+  font-size: 1rem;
+}
+
+.disclaimerBottom p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.disclaimerBottom a {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+/* Report Header */
+.reportHeader {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.companyInfo {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.companyInfo h1 {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.filingInfo {
+  display: flex;
+  gap: var(--spacing-2xl);
+}
+
+.filingInfo > div {
+  flex: 1;
+}
+
+.filingInfo span {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.filingInfo p {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Refund Notice */
+.refundNotice {
+  padding: var(--spacing-md);
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+/* Sections */
+.sections {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.section {
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.section h2 {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.sectionContent {
+  line-height: 1.8;
+}
+
+.sectionContent p {
+  margin-bottom: var(--spacing-md);
+}
+
+.sectionContent p:last-child {
+  margin-bottom: 0;
+}
+
+/* No Content */
+.noContent {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.actions a {
+  flex: 1;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .disclaimerTop,
+  .disclaimerBottom {
+    padding: var(--spacing-md);
+  }
+
+  .disclaimerTop ul {
+    margin-left: var(--spacing-lg);
+  }
+
+  .reportHeader {
+    padding: var(--spacing-md);
+  }
+
+  .companyInfo h1 {
+    font-size: 1.75rem;
+  }
+
+  .filingInfo {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .section {
+    padding: var(--spacing-md);
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

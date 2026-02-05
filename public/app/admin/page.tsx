@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut, User } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
+import Footer from '@/components/Footer'
 import styles from './admin.module.css'
 
 interface SystemStats {
@@ -404,6 +405,8 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   )
 }

@@ -14,11 +14,17 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setMessage('')
+    
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms & Conditions to create an account')
+      return
+    }
     
     if (password !== confirmPassword) {
       setError('Passwords do not match')
@@ -118,10 +124,32 @@ export default function SignUp() {
               />
             </div>
 
+            <div className={styles.formGroup}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  disabled={loading}
+                  style={{ width: 'auto', cursor: 'pointer' }}
+                />
+                <span style={{ fontWeight: 'normal' }}>
+                  I have read, understood, and agree to the{' '}
+                  <Link href="/terms" target="_blank" style={{ textDecoration: 'underline' }}>
+                    Terms & Conditions
+                  </Link>
+                  {' '}and{' '}
+                  <Link href="/privacy" target="_blank" style={{ textDecoration: 'underline' }}>
+                    Privacy Policy
+                  </Link>
+                </span>
+              </label>
+            </div>
+
             <button 
               type="submit" 
               className="button primary" 
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
               style={{ width: '100%' }}
             >
               {loading ? 'Creating account...' : 'Sign Up'}

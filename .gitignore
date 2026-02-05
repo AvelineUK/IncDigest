@@ -1,4 +1,5 @@
 support/
+*.zip
 
 # Environment variables
 .env

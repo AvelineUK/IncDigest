@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Footer from '@/components/Footer'
 import styles from './blog.module.css'
 
 export const metadata = {
@@ -74,6 +75,8 @@ export default function BlogIndex() {
           ))}
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }
