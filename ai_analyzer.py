@@ -284,7 +284,7 @@ Analysis (evidence-based only):"""
                            new_date: str,
                            diff_results: Dict[str, Dict]) -> Dict:
         """
-        Analyze all sections and generate complete report
+        Analyze all sections in a SINGLE Claude API call to avoid repetition across sections
         
         Args:
             company_name: Company name
@@ -297,49 +297,222 @@ Analysis (evidence-based only):"""
             Complete analysis report with all sections
         """
         print(f"\n{'='*60}")
-        print(f"AI Analysis: {company_name} ({ticker})")
+        print(f"AI Analysis (Single Call): {company_name} ({ticker})")
         print(f"Comparing {old_date} vs {new_date}")
         print(f"{'='*60}\n")
         
-        analyses = []
-        total_cost = 0.0
-        total_tokens = 0
+        # Build comprehensive prompt with all sections
+        prompt = f"""You are analyzing changes in SEC 10-K filings for investors. Your accuracy is critical.
+
+CONTEXT:
+Company: {company_name} ({ticker})
+Old Filing: 10-K filed {old_date}
+New Filing: 10-K filed {new_date}
+
+⚠️ CRITICAL LEGAL REQUIREMENT - READ FIRST ⚠️
+Under no circumstances use information or data outside of these documents. You cannot use any prior knowledge about this company, its products, its industry, or any other contextual information. For the purposes of this analysis, treat yourself as having ZERO prior knowledge. If it's not in the REMOVED or ADDED content below, it does not exist.
+
+IF YOU BREAK THIS RULE, IT CAN CAUSE SERIOUS LEGAL ISSUES. NEVER, EVER BREAK THIS RULE.
+
+MATERIALITY STANDARD:
+Focus ONLY on changes that would affect investment decisions:
+✅ New risks or risk escalation
+✅ Business model changes or strategic shifts
+✅ Market exits/entries or geographic expansion
+✅ Significant financial metric changes
+✅ Regulatory, legal, or compliance developments
+✅ Executive leadership changes (C-suite, board)
+✅ Material operational changes (facility closures, restructuring)
+
+❌ Routine operational updates
+❌ Minor wording tweaks or clarifications
+❌ Formatting, pagination, or organizational changes
+
+⚠️ CRITICAL: AVOID REPETITION ACROSS SECTIONS ⚠️
+You are analyzing ALL sections at once. Each material change should be reported ONLY ONCE in the most appropriate section:
+- Item 1 (Business): Company operations, products, competitive positioning, organizational structure
+- Item 1A (Risk Factors): Risk disclosures, risk escalations, new threats
+- Item 7 (MD&A): Management's discussion of financial performance, trends, liquidity
+- Item 8 (Financial Statements): Accounting policies, audit matters, financial presentation changes
+
+For company-wide changes (acquisitions, divestitures, restructuring):
+- Report the operational/strategic aspects in Item 1
+- Report ONLY NEW risks in Item 1A (not facts already in Item 1)
+- Report ONLY financial impacts/management discussion in Item 7
+- Report ONLY accounting/audit changes in Item 8
+
+DO NOT repeat the same factual change across sections. Focus on what's UNIQUE to each section's purpose.
+
+THE BLOOMBERG TEST (apply to every bullet point):
+"Would a Bloomberg terminal analyst include this in a filing summary?"
+If NO → Do not include it.
+
+STRICT EVIDENCE RULES (MANDATORY):
+1. ONLY report changes explicitly shown in the REMOVED vs ADDED content below
+2. DO NOT infer, interpret, or extrapolate beyond what is directly stated
+3. DO NOT mention product names, model numbers, or versions unless they appear in BOTH removed and added content showing a clear change
+4. DO NOT report percentage changes, employee counts, or financial figures unless explicitly comparing old vs new values shown in the diff
+5. If you cannot identify a specific, evidenced change, respond: "No material disclosure changes identified in this section."
+
+FORBIDDEN BEHAVIORS:
+❌ Routine updates: product versions, page numbers, fiscal year dates, formatting changes
+❌ Annual refresh cycles: iPhone 15→16, Model Year updates, standard version increments
+❌ Unsupported claims: mentioning facts not explicitly shown in BOTH old AND new content
+❌ Personnel changes: unless C-suite or board level
+❌ Background context: restating what the company does
+
+"""
         
-        for section_name, diff_result in diff_results.items():
-            print(f"Analyzing {section_name}...", end=' ')
+        # Add each section's diff content
+        for section_name in ['Item 1', 'Item 1A', 'Item 7', 'Item 8']:
+            diff_result = diff_results.get(section_name, {})
             
-            analysis = self.analyze_section_changes(
-                section_name=section_name,
-                company_name=company_name,
-                ticker=ticker,
-                old_date=str(old_date),
-                new_date=str(new_date),
-                diff_result=diff_result
+            if not diff_result.get('has_meaningful_changes', False):
+                prompt += f"\n{'='*80}\n{section_name}: NO MEANINGFUL CHANGES\n{'='*80}\n\n"
+                continue
+            
+            removed = diff_result.get('removed_content', '')
+            added = diff_result.get('added_content', '')
+            
+            # Truncate if too long
+            max_content_length = 15000
+            if len(removed) > max_content_length:
+                removed = removed[:max_content_length] + "\n\n[Content truncated...]"
+            if len(added) > max_content_length:
+                added = added[:max_content_length] + "\n\n[Content truncated...]"
+            
+            prompt += f"""
+{'='*80}
+{section_name}
+{'='*80}
+
+REMOVED CONTENT (from old filing):
+{removed if removed else "[No content removed]"}
+
+ADDED CONTENT (to new filing):
+{added if added else "[No content added]"}
+
+"""
+        
+        prompt += """
+OUTPUT FORMAT (CRITICAL):
+
+Respond with a JSON object where each key is a section name and each value is the analysis:
+
+{
+  "Item 1": "• Bullet point 1\\n• Bullet point 2",
+  "Item 1A": "No material disclosure changes identified in this section.",
+  "Item 7": "• Bullet point 1",
+  "Item 8": "No material disclosure changes identified in this section."
+}
+
+Rules:
+- Maximum 5 bullet points per section
+- Each bullet must pass the Bloomberg test
+- Use "No material disclosure changes identified in this section." if nothing material
+- Keep under 300 words per section
+- NO PREAMBLE - just bullet points starting with •
+- NO REPETITION across sections - each change reported ONCE in most relevant section
+
+Respond ONLY with the JSON object, nothing else."""
+        
+        # Call Claude API
+        try:
+            if not ANTHROPIC_AVAILABLE:
+                # Mock response for testing
+                return {
+                    'company_name': company_name,
+                    'ticker': ticker,
+                    'old_filing_date': str(old_date),
+                    'new_filing_date': str(new_date),
+                    'sections': [
+                        {'section': 'Item 1', 'has_changes': True, 'summary': '[MOCK] Analysis pending', 'status': 'mock'},
+                        {'section': 'Item 1A', 'has_changes': True, 'summary': '[MOCK] Analysis pending', 'status': 'mock'},
+                        {'section': 'Item 7', 'has_changes': True, 'summary': '[MOCK] Analysis pending', 'status': 'mock'},
+                        {'section': 'Item 8', 'has_changes': True, 'summary': '[MOCK] Analysis pending', 'status': 'mock'},
+                    ],
+                    'total_cost_usd': 0.10,
+                    'total_cost_gbp': 0.08,
+                    'total_tokens': 10000
+                }
+            
+            client = anthropic.Anthropic(api_key=self.api_key)
+            
+            message = client.messages.create(
+                model=self.model,
+                max_tokens=4000,  # Increased for all sections
+                messages=[{"role": "user", "content": prompt}]
             )
             
-            analyses.append(analysis)
+            response_text = message.content[0].text.strip()
             
-            if analysis.get('cost_usd'):
-                total_cost += analysis['cost_usd']
-                total_tokens += analysis['tokens']['total']
-                print(f"✓ (${analysis['cost_usd']:.4f}, {analysis['tokens']['total']} tokens)")
-            else:
-                print(f"✓ ({analysis['status']})")
-        
-        print(f"\nTotal cost: ${total_cost:.4f} (£{total_cost * 0.79:.4f})")
-        print(f"Total tokens: {total_tokens:,}")
-        
-        return {
-            'company_name': company_name,
-            'ticker': ticker,
-            'old_filing_date': str(old_date),
-            'new_filing_date': str(new_date),
-            'sections': analyses,
-            'total_cost_usd': round(total_cost, 4),
-            'total_cost_gbp': round(total_cost * 0.79, 4),  # Rough USD to GBP conversion
-            'total_tokens': total_tokens,
-            'generated_at': None  # Will be set when generating actual report
-        }
+            # Parse JSON response
+            # Remove markdown code blocks if present
+            if response_text.startswith('```'):
+                lines = response_text.split('\n')
+                # Remove first and last lines (``` markers)
+                response_text = '\n'.join(lines[1:-1])
+                if response_text.startswith('json'):
+                    response_text = response_text[4:].strip()
+            
+            section_summaries = json.loads(response_text)
+            
+            # Build analyses list
+            analyses = []
+            for section_name in ['Item 1', 'Item 1A', 'Item 7', 'Item 8']:
+                summary = section_summaries.get(section_name, 'No material disclosure changes identified in this section.')
+                analyses.append({
+                    'section': section_name,
+                    'has_changes': summary != 'No material disclosure changes identified in this section.',
+                    'summary': summary,
+                    'status': 'analyzed'
+                })
+            
+            # Calculate cost
+            input_tokens = message.usage.input_tokens
+            output_tokens = message.usage.output_tokens
+            total_tokens = input_tokens + output_tokens
+            
+            input_cost = input_tokens * (3.00 / 1_000_000)
+            output_cost = output_tokens * (15.00 / 1_000_000)
+            total_cost = input_cost + output_cost
+            
+            print(f"✓ Single call complete")
+            print(f"Total cost: ${total_cost:.4f} (£{total_cost * 0.79:.4f})")
+            print(f"Total tokens: {total_tokens:,}")
+            
+            return {
+                'company_name': company_name,
+                'ticker': ticker,
+                'old_filing_date': str(old_date),
+                'new_filing_date': str(new_date),
+                'sections': analyses,
+                'total_cost_usd': round(total_cost, 4),
+                'total_cost_gbp': round(total_cost * 0.79, 4),
+                'total_tokens': total_tokens,
+                'generated_at': None
+            }
+            
+        except Exception as e:
+            print(f"✗ Error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            # Fall back to empty analyses
+            return {
+                'company_name': company_name,
+                'ticker': ticker,
+                'old_filing_date': str(old_date),
+                'new_filing_date': str(new_date),
+                'sections': [
+                    {'section': name, 'has_changes': False, 'summary': f'Error: {str(e)}', 'status': 'error'}
+                    for name in ['Item 1', 'Item 1A', 'Item 7', 'Item 8']
+                ],
+                'total_cost_usd': 0,
+                'total_cost_gbp': 0,
+                'total_tokens': 0,
+                'generated_at': None
+            }
     
     def format_report_text(self, analysis_result: Dict) -> str:
         """
