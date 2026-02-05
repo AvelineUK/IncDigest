@@ -147,7 +147,7 @@ OUTPUT FORMAT:
 - Each bullet must pass the Bloomberg test
 - Lead with the most material change first
 - If fewer than 1 material changes exist, respond: "No material disclosure changes identified in this section."
-- Keep total response under 300 words
+- Keep total response under 500 words
 - Be precise and specific, not comprehensive
 - NO PREAMBLE WHATSOEVER: just bullet points. Nobody is interested in reading "Looking at the specific changes between the removed and added content, I can identify the following material disclosure changes:" or anything else with a similar sentiment.
 
