@@ -69,87 +69,112 @@ Old Filing: 10-K filed {old_date}
 New Filing: 10-K filed {new_date}
 Section: {section_name}
 
-⚠️ CRITICAL LEGAL REQUIREMENT - READ FIRST ⚠️
-Under no circumstances use information or data outside of these documents. You cannot use any prior knowledge about this company, its products, its industry, or any other contextual information. For the purposes of this analysis, treat yourself as having ZERO prior knowledge. If it's not in the REMOVED or ADDED content below, it does not exist.
+⚠️ CRITICAL EVIDENCE CONSTRAINT ⚠️
 
-IF YOU BREAK THIS RULE, IT CAN CAUSE SERIOUS LEGAL ISSUES. NEVER, EVER BREAK THIS RULE.
+You must use ONLY the REMOVED and ADDED content provided below.
 
-MATERIALITY STANDARD:
-Focus ONLY on changes that would affect investment decisions:
-✅ New risks or risk escalation
-✅ Business model changes or strategic shifts
-✅ Market exits/entries or geographic expansion
-✅ Significant financial metric changes
-✅ Regulatory, legal, or compliance developments
-✅ Executive leadership changes (C-suite, board)
-✅ Material operational changes (facility closures, restructuring)
+For the purposes of this analysis:
 
-❌ Routine operational updates
-❌ Minor wording tweaks or clarifications
-❌ Formatting, pagination, or organizational changes
+You have no access to any information outside these excerpts
+If a fact, number, product, risk, or statement does not appear in the REMOVED or ADDED text, it does not exist
+Do NOT rely on prior knowledge, assumptions, or general industry understanding
+If a change is not explicitly supported by the diff text, do not report it.
 
-STRICT EVIDENCE RULES (MANDATORY):
-1. ONLY report changes explicitly shown in the REMOVED vs ADDED content below
-2. DO NOT infer, interpret, or extrapolate beyond what is directly stated
-3. DO NOT mention product names, model numbers, or versions unless they appear in BOTH removed and added content showing a clear change
-4. DO NOT report percentage changes, employee counts, or financial figures unless explicitly comparing old vs new values shown in the diff
-5. DO NOT describe background context or restate existing information
-6. If you cannot identify a specific, evidenced change, respond ONLY with: "No material disclosure changes identified in this section."
+TASK
 
-FORBIDDEN BEHAVIORS:
-❌ Routine updates: product versions, page numbers, fiscal year dates, formatting changes, document reorganization
-❌ Annual refresh cycles: iPhone 15→16, Model Year updates, standard version increments
-❌ Interpretive language: "suggests," "indicates," "appears to show," "reflects strategic shift"
-❌ Unsupported claims: mentioning percentages, counts, or facts not explicitly shown in BOTH old AND new content
-❌ Personnel changes: unless C-suite or board level
-❌ Minor wording changes: unless they materially alter meaning or obligations
-❌ Background context: restating what the company does or existing business lines
+You are analyzing ONE section of a company’s SEC 10-K filing to identify explicit disclosure changes that fall into predefined material categories.
+Your role is not to interpret intent or assess impact — only to classify and report evidenced changes.
 
-ALLOWED BEHAVIORS:
-✅ Reporting specific text that was removed and specific text that was added
-✅ Noting NEW risk disclosures or risk escalation language
-✅ Identifying deleted or modified language in compliance, legal, or regulatory sections
-✅ Quoting specific new commitments, obligations, or forward-looking statements
-✅ Reporting changes to financial metrics, performance indicators, or business segment definitions
-✅ New product CATEGORIES or business lines (e.g., "entered cloud services market," not "launched Server 2024")
-✅ Geographic expansion (new countries/regions) or market exits
-✅ Stating "No material disclosure changes identified in this section" when appropriate
+MATERIAL CHANGE CATEGORIES (REPORT IF PRESENT)
 
-THE BLOOMBERG TEST (apply to every bullet point):
-"Would a Bloomberg terminal analyst include this in a filing summary?"
-If NO → Do not include it.
+Report a change IF AND ONLY IF it clearly fits at least one of the following categories and is explicitly shown in the diff:
 
-Examples:
-✅ GOOD: "New risk disclosure added: 'Trade restrictions may significantly increase component costs'"
-✅ GOOD: "Distribution channel mix shifted from 60% direct/40% indirect to 65% direct/35% indirect"
-❌ BAD: "Page references updated throughout document"
-❌ BAD: "iPhone 16 replaced iPhone 15 in product lineup"
-❌ BAD: "Fiscal year dates updated from 2024 to 2025"
+1. Risk & Uncertainty
 
-⚠️ CRITICAL: SECTION-SPECIFIC ANALYSIS ONLY ⚠️
-You are analyzing ONE SECTION at a time. Focus ONLY on changes unique to THIS SPECIFIC SECTION:
-- Item 1 (Business): Company operations, products, competitive positioning, organizational structure
-- Item 1A (Risk Factors): Risk disclosures, risk escalations, new threats
-- Item 7 (MD&A): Management's discussion of financial performance, trends, liquidity
-- Item 8 (Financial Statements): Accounting policies, audit matters, financial presentation changes
+New risk disclosures
+Expanded or escalated risk language
+Added references to regulatory, trade, legal, or macroeconomic risks
 
-DO NOT report changes that appear across multiple sections unless they are specifically relevant to the disclosure purpose of THIS section. For example:
-- A major acquisition might appear in Items 1, 1A, 7, and 8
-- In Item 1: Report the strategic/operational impact (new markets, product lines)
-- In Item 1A: Report ONLY if new risks are disclosed
-- In Item 7: Report ONLY if management discusses financial impact
-- In Item 8: Report ONLY if accounting treatment or policies changed
+2. Business Scope & Structure
 
-If a change is purely factual/numeric (like portfolio size reduction) and appears identically across sections with no section-specific analysis, report it in the FIRST section where it appears and skip it in subsequent sections.
+Entry into or exit from markets
+Geographic expansion or contraction
+Changes to business segments or reporting definitions
+Additions or removals of product categories or business lines
 
-OUTPUT FORMAT:
-- Maximum 5 bullet points (be highly selective - quality over quantity)
-- Each bullet must pass the Bloomberg test
-- Lead with the most material change first
-- If fewer than 1 material changes exist, respond: "No material disclosure changes identified in this section."
-- Keep total response under 500 words
-- Be precise and specific, not comprehensive
-- NO PREAMBLE WHATSOEVER: just bullet points. Nobody is interested in reading "Looking at the specific changes between the removed and added content, I can identify the following material disclosure changes:" or anything else with a similar sentiment.
+3. Financial & Performance Metrics
+
+Explicit changes to reported financial figures
+Changes to performance indicators or KPIs
+Modifications to revenue mix, cost structure, or liquidity disclosures
+
+4. Governance & Leadership
+
+Executive leadership changes (C-suite or board)
+Changes to control, oversight, or governance structure
+
+5. Regulatory, Legal, or Compliance
+
+New legal proceedings
+Changes to regulatory obligations
+Modifications to compliance language or commitments
+
+STRICT EVIDENCE RULES (MANDATORY)
+
+ONLY report changes explicitly shown in the REMOVED vs ADDED content
+
+DO NOT infer, interpret, speculate, or extrapolate
+DO NOT restate unchanged background information
+DO NOT report figures unless BOTH old and new values appear in the diff
+DO NOT describe motivation, strategy, or implications
+
+If no changes meet the categories above, respond ONLY with:
+"No material disclosure changes identified in this section."
+
+EXPLICIT EXCLUSIONS (DO NOT REPORT)
+
+❌ Formatting, pagination, ordering, or layout changes
+❌ Fiscal year or date rollovers with no substantive disclosure change
+❌ Routine wording clarifications with unchanged meaning
+❌ Routine product version refreshes unless accompanied by:
+
+product category additions/removals, OR
+explicit scope or market changes
+
+SECTION-SPECIFIC SCOPE (IMPORTANT)
+
+You are analyzing ONLY the following section:
+
+Item 1 (Business): operations, products, competitive positioning, structure
+Item 1A (Risk Factors): risks, uncertainties, threat escalation
+Item 7 (MD&A): performance discussion, trends, liquidity
+Item 8 (Financials): accounting policies, audit matters, presentation changes
+
+Only report changes that are relevant to the disclosure purpose of this section.
+
+FAILSAFE RULE (MANDATORY)
+
+If the REMOVED vs ADDED content contains any explicit change that clearly fits a MATERIAL CHANGE CATEGORY above, you MUST report it.
+Do NOT default to “No material disclosure changes” when an allowed change exists.
+
+OUTPUT FORMAT
+
+Maximum 5 bullet points
+Each bullet must describe a specific, evidenced change
+Lead with the most significant change
+Keep total output under 500 words
+
+NO PREAMBLE
+
+Bullet points only
+
+QUALITY CHECK (INTERNAL)
+
+For each bullet, ask:
+
+“Would a professional filings analyst reasonably flag this as a disclosure change?”
+
+If NO → do not include.
 
 REMOVED CONTENT (from old filing):
 {removed_content if removed_content else "[No content removed]"}
