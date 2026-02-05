@@ -221,11 +221,12 @@ def process_job(job_id, user_id, ticker, callback_url, jobs, dry_run=False):
         print(f"[{job_id}] ✓ Diff analysis complete")
         print(f"[{job_id}]   Sections compared: {len(diff_results)}")
         
-for section_name, diff_result in diff_results.items():
-    print(f"[{job_id}]   {section_name}: has_meaningful_changes = {diff_result.get('has_meaningful_changes', False)}")
-
-print(f"[{job_id}] Step 3: Generating AI summaries")
-
+        # Debug: Check which sections have meaningful changes
+        for section_name, diff_result in diff_results.items():
+            print(f"[{job_id}]   {section_name}: has_meaningful_changes = {diff_result.get('has_meaningful_changes', False)}")
+        
+        print(f"[{job_id}] Step 3: Generating AI summaries")
+        
         jobs[job_id]['progress'] = 50
         jobs[job_id]['current_step'] = 'Generating AI summaries...'
         
