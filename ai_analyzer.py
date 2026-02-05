@@ -127,11 +127,11 @@ Examples:
 ❌ BAD: "Fiscal year dates updated from 2024 to 2025"
 
 OUTPUT FORMAT:
-- Maximum 4 bullet points (be highly selective - quality over quantity)
+- Maximum 5 bullet points (be highly selective - quality over quantity)
 - Each bullet must pass the Bloomberg test
 - Lead with the most material change first
 - If fewer than 1 material changes exist, respond: "No material disclosure changes identified in this section."
-- Keep total response under 200 words
+- Keep total response under 300 words
 - Be precise and specific, not comprehensive
 - NO PREAMBLE WHATSOEVER: just bullet points. Nobody is interested in reading "Looking at the specific changes between the removed and added content, I can identify the following material disclosure changes:" or anything else with a similar sentiment.
 
